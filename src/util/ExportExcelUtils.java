@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
  
@@ -39,7 +40,7 @@ public class ExportExcelUtils {
 	 * @throws Exception
 	 */
 	public void exportExcel(HSSFWorkbook workbook, int sheetNum,
-			String sheetTitle, String[] headers, List<Map<String, Object>> result) throws Exception {
+			String sheetTitle, ArrayList<String> headers, List<Map<String, Object>> result) throws Exception {
 		// 生成一个表格
 		HSSFSheet sheet = workbook.createSheet();
 		workbook.setSheetName(sheetNum, sheetTitle);
@@ -64,26 +65,13 @@ public class ExportExcelUtils {
 		// 指定当单元格内容显示不下时自动换行
 		style.setWrapText(true);
 		
-		//如果为号源，表头格式进行特殊处理
-		/*if (sheetTitle == "排班号源情况") {
-			// 创建第0行 也就是标题
-			HSSFRow row1 = sheet.createRow((int) 0);
-			row1.setHeightInPoints(50);// 设备标题的高度
-			// 创建第1行 也就是表头
-			HSSFRow row = sheet.createRow((int) 1);
-			row.setHeightInPoints(10);// 设置表头高度
-			HSSFCell cell1 = row1.createCell(0);// 创建标题第一列
-			sheet.addMergedRegion(new CellRangeAddress(0, 0, 0,
-					headers.length-1)); // 合并第0到第7列
-			cell1.setCellValue(titleName); // 设置标题值
-		}*/
 		
 		// 产生表格标题行
 		HSSFRow row = sheet.createRow(0);
-		for (int i = 0; i < headers.length; i++) {
+		for (int i = 0; i < headers.size(); i++) {
 			HSSFCell cell = row.createCell((short) i);
 			cell.setCellStyle(style);
-			HSSFRichTextString text = new HSSFRichTextString(headers[i]);
+			HSSFRichTextString text = new HSSFRichTextString(headers.get(i));
 			cell.setCellValue(text.toString());
 		}
 		//创建单元格，并设置值
@@ -112,15 +100,11 @@ public class ExportExcelUtils {
 			autotransfer2.setAlignment(HorizontalAlignment.LEFT);//居←
 			autotransfer2.setVerticalAlignment(VerticalAlignment.CENTER);//垂直
 			//单元格颜色设置
-			//HSSFCellStyle colorCellStyle = workbook.createCellStyle();
-			//autotransfer2.setBottomBorderColor(HSSFColor.RED.index);
-			//autotransfer2.setFillBackgroundColor(HSSFColor.BLUE.index);
-			//autotransfer2.setFillPattern(HSSFCellStyle.FINE_DOTS );
 			autotransfer2.setFillBackgroundColor(new HSSFColor.RED().getIndex());
 			
 			//单元格赋值
 			HSSFCell datacell = null;
-			for (int j = 0; j < headers.length; j++) 
+			for (int j = 0; j < headers.size(); j++) 
 			{
 				datacell = row.createCell(j);//获取每一行的标记
 				Map<String, Object> map =result.get(i);
@@ -156,151 +140,7 @@ public class ExportExcelUtils {
 						value = df.format(num);//返回的是String类型 
 					}
 				}
-				//失败	
-				if (sheetTitle == "失败") {
-					if (j == 0) {
-						 value = map.get("NODE_NAME").toString();
-					}    
-					if (j == 1) {
-						value = map.get("SEIN_CNAME").toString();
-					}
-					if (j == 2) {
-						value = map.get("FAILED_COUNT").toString();
-						
-					}
-					if (j == 3) {
-						value = map.get("AVG_TIME").toString();
-						if (value == null) {
-							value = "";
-						}
-					}
-					if (j == 4) {
-						value = map.get("ERR_NAME").toString();
-					}
-				}
-				//成功
-				if (sheetTitle == "成功") {
-					if (j == 0) {
-						 value = map.get("NODE_NAME").toString();
-					}    
-					if (j == 1) {
-						value = map.get("SEIN_CNAME").toString();
-					}
-					if (j == 2) {
-						value = map.get("FAILED_COUNT").toString();
-					}
-					if (j == 3) {
-						value = map.get("AVG_TIME").toString();
-					}
-				}
-				//服务整体运行情况
-				if (sheetTitle == "服务整体运行情况") {
-					if (j == 0) {
-						 value = map.get("NODE_NAME").toString();
-					}    
-					if (j == 1) {
-						value = map.get("SEIN_CNAME").toString();
-					}
-					if (j == 2) {
-						Object obj = map.get("FAILED_COUNT");
-						if (obj == null || "".equals(obj)) {
-							value = "";
-						}else {
-							value = obj.toString();
-						}
-					}
-					if (j == 3) {
-						Object obj = map.get("AVG_TIME");
-						if (obj == null || "".equals(obj)) {
-							value = "";
-						}else {
-							value = obj.toString();
-						}
-					}
-				}
-				//采集报告数据量
-				if (sheetTitle.contains("采集报告数量") ) {
-					if (j == 0) {
-						value = map.get("SOURCE_ORG_NAME").toString();
-					}
-					if (j == 1) {
-						value = map.get("CLASS_NAME").toString();
-					}
-					if (j == 2) {
-						value = map.get("COUNTNUM").toString();
-					}
-				}
-				//排班号源情况
-				if (sheetTitle.contains("排班号源情况")) {
-					float val1 = 0;
-					float val2 = 0;
-					String val3 = "";
-					String val4 = "";
-					if (j == 0) {
-						value = map.get("ORG_NAME").toString();
-					}    
-					if (j == 1) {
-						//获取普通号源数
-						value = map.get("PTHY").toString();
-					}
-					if (j == 2) {
-						//获取专家号源数
-						value = map.get("ZJHY").toString();
-					}
-					if (j == 3) {
-						//获取转诊号源数
-						value = map.get("ZZHY").toString();
-					}
-					if (j == 4) {
-						//获取专家转诊号源数
-						value = map.get("ZJZZHY").toString();
-					}
-					if (j == 5) {
-						//号源总数
-						val3 = map.get("PTHY").toString();
-						val4 = map.get("ZJHY").toString();
-						Integer num = Integer.valueOf(val3)+Integer.valueOf(val4) ;
-						value = String.valueOf(num);
-						
-					}
-					if (j == 6) {
-						//专家转诊号源占比
-						value = map.get("ZJZZHY").toString();
-						val1 = Float.valueOf(value);//将string类型转换为float类型
-						value = map.get("ZJHY").toString();
-						val2 = Float.valueOf(value);
-						float num= (float)val1/val2;  
-						DecimalFormat df = new DecimalFormat("0.00%");//格式化小数   
-						value = df.format(num);//返回的是String类型 
-					}
-					if (j == 7) {
-						//转诊号源占比
-						//1.获取转诊号源数
-						String val5 = map.get("ZZHY").toString();
-						Integer num1 = Integer.valueOf(val5);
-						//2.获取号源总数
-						val3 = map.get("PTHY").toString();
-						val4 = map.get("ZJHY").toString();
-						Integer num2 = Integer.valueOf(val3)+Integer.valueOf(val4) ;
-						//3.进行计算占比
-						float num= (float)num1/num2;  
-						DecimalFormat df = new DecimalFormat("0.00%");//格式化小数   
-						value = df.format(num);//返回的是String类型 
-					}
-				}
-				
-				//轮巡错误日志情况
-				if (sheetTitle == "轮询错误日志情况") {
-					if (j == 0) {
-						 value = map.get("DOMAIN_NAME").toString();
-					}    
-					if (j == 1) {
-						value = map.get("CLASS_NAME").toString();
-					}
-					if (j == 2) {
-						value = map.get("COUNTNUM").toString();
-					}
-				}
+
 				datacell.setCellValue(value);
 				//sheet.addMergedRegion(new CellRangeAddress(1, 3, 0, 0));//合并单元格
 				datacell.setCellStyle(autotransfer2);//设置单元格的格式 

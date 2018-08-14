@@ -104,4 +104,7 @@ public class GetTime {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");//设置日期格式
 		return  df.format(data);
 			}
+
+	
+	
 }
